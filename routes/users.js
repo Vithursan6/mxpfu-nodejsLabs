@@ -26,7 +26,7 @@ let users = [
 // GET request: Retrieve all users
 router.get("/",(req,res)=>{
   // Copy the code here
-  res.send(users);//This line is to be replaced with actual return value
+  res.send(JSON.stringify({users}, null, 4));//This line is to be replaced with actual return value
 });
 
 // GET by specific ID request: Retrieve a single user with email ID
@@ -35,6 +35,13 @@ router.get("/:email",(req,res)=>{
   let filtered_users = users.filter((user) => user.email === email);
   res.send(filtered_users);//This line is to be replaced with actual return value
 });
+
+// GET by specific ID request: Retrieve a single user with email ID
+router.get("/lastName/:lastName",(req,res)=>{
+    const lastName = req.params.lastName;
+    let filtered_users = users.filter((user) => user.lastName === lastName);
+    res.send(filtered_users);//This line is to be replaced with actual return value
+  });
 
 
 // POST request: Create a new user
@@ -89,11 +96,33 @@ router.put("/:email", (req, res) => {
   }
 });
 
+// Function to convert a date string in the format "dd-mm-yyyy" to a Date object
+function getDateFromString(strDate) {
+    let [dd, mm, yyyy] = strDate.split('-');
+    return new Date(yyyy + "/" + mm + "/" + dd);
+}
+
+// Define a route handler for GET requests to the "/sort" endpoint
+router.get("/sort", (req, res) => {
+    // Sort the users array by DOB in ascending order
+    let sorted_users = users.sort(function(a, b) {
+        let d1 = getDateFromString(a.DOB);
+        let d2 = getDateFromString(b.DOB);
+        return d1 - d2;
+    });
+    // Send the sorted_users array as the response to the client
+    res.send(sorted_users);
+});
+
 
 // DELETE request: Delete a user by email ID
 router.delete("/:email", (req, res) => {
-  // Copy the code here
-  res.send("Yet to be implemented")//This line is to be replaced with actual return value
+  // Extract the email parameter from the request URL
+  const email = req.params.email;
+  // Filter the users array to exclude the user with the specified email
+  users = users.filter((user) => user.email != email);
+  // Send a success message as the response, indicating the user has been deleted
+  res.send(`User with the email ${email} has been deleted!`);
 });
 
 module.exports=router;
